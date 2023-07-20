@@ -1,0 +1,3 @@
+function allDistanceMatrices = generateDistanceMatrices(wordParameters, numOfIterations)
+    % ...
+end

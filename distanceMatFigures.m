@@ -1,3 +1,5 @@
+% THIS WAS MOVED INTO visualizeDistanceMatrix.m
+
 letterTriTrans = transpose(allMatrices.letterTri);
 heatmap(letterTriTrans, 'Colormap', parula)
 set(gca,'XData',wordlist, 'YData', wordlist)

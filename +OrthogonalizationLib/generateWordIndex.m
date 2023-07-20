@@ -1,0 +1,3 @@
+function wordIndex = generateWordIndex(wordParameters)
+    % ...
+end	

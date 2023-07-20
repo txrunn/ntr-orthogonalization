@@ -1,0 +1,3 @@
+function correlationData = generateCorrelationData(wordParameters)
+    % ...
+end
