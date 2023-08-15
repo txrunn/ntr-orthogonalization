@@ -112,3 +112,156 @@ classdef NTR_Orthogonalization < handle
     end
 
 end
+
+    function obj = NTR_Orthogonalization(obj)
+        % % Constructor for the NTR_Orthogonalization class
+        
+        % TODO: Implement the logic for NTR_Orthogonalization
+    end
+
+    function obj = size(obj)
+        % % Method to perform all the filter operations
+        
+        % TODO: Implement the logic for size
+    
+    function filterHomographs(obj)
+        % Filters homographs from the parameters
+        homographs_filtered = [num2str(obj.list_size - size(obj.parameters, 1)), ' words filtered (homographs)'];
+        disp(homographs_filtered);
+    end
+
+    function filterWordLength(obj)
+        % Filters words based on length criteria
+        word_length_filtered = [num2str(obj.list_size - size(obj.parameters, 1)), ' words filtered (word length)'];
+        disp(word_length_filtered);
+    end
+
+    function filterGLOVEParameters(obj)
+        % Placeholder for filtering words based on GLOVE parameters
+        % TODO: Implement the specific logic or criteria for GLOVE parameter filtering
+        disp('Filtering based on GLOVE parameters not yet implemented.');
+    end
+
+    function filterELPData(obj)
+        % Placeholder for filtering and operations based on ELP data
+        % TODO: Implement the specific logic or criteria for ELP data-related operations
+        disp('Operations based on ELP data not yet implemented.');
+    end
+
+    function filterScopeData(obj)
+        % Placeholder for filtering and operations based on scope data
+        % TODO: Implement the specific logic or criteria for scope data-related operations
+        disp('Operations based on scope data not yet implemented.');
+    end
+    
+    function filterBiphoneProbabilityData(obj)
+        % Placeholder for filtering and operations based on biphone probability data
+        % TODO: Implement the specific logic or criteria for biphone probability data-related operations
+        disp('Operations based on biphone probability data not yet implemented.');
+    end
+
+    function manipulateStrings(obj, inputString)
+        % Placeholder for string manipulations
+        % TODO: Implement the specific string manipulations as identified
+        trimmedString = strtrim(inputString);  % Removes leading and trailing white space from strings
+        stringWithoutPlus = strrep(trimmedString, '+', '');  % Replaces '+' with empty string
+        disp(['Original String: ', inputString]);
+        disp(['Modified String: ', stringWithoutPlus]);
+    end
+
+    function matchInputsToParameters(obj)
+        % Placeholder for matching other inputs to parameters
+        % TODO: Implement the specific logic for matching inputs to parameters
+        disp('Matching inputs to parameters not yet implemented.');
+    end
+    
+    function formatTables(obj)
+        % Placeholder for formatting tables related to gp, bigp, and onset-rimes
+        % TODO: Implement the specific logic for formatting tables
+        disp('Formatting tables not yet implemented.');
+    end
+    
+    function runIterations(obj)
+        % Placeholder for running iterations and computations
+        % TODO: Implement the specific logic for running iterations and computations
+        disp('Running iterations and computations not yet implemented.');
+    end
+
+    function processNextSegment(obj)
+        % Placeholder for operations related to the next segment of the script
+        % TODO: Implement the specific logic based on the next segment of the script
+        disp('Operations related to the next segment of the script not yet implemented.');
+    end
+
+    function processFurtherSegment(obj)
+        % Placeholder for operations related to the further segment of the script
+        % TODO: Implement the specific logic based on the further segment of the script
+        disp('Operations related to the further segment of the script not yet implemented.');
+    end
+
+    function processSubsequentSegment(obj)
+        % Placeholder for operations related to the subsequent segment of the script
+        % TODO: Implement the specific logic based on the subsequent segment of the script
+        disp('Operations related to the subsequent segment of the script not yet implemented.');
+    end
+
+    function processNextSegment2(obj)
+        % Placeholder for operations related to the next segment of the script
+        % TODO: Implement the specific logic based on the next segment of the script
+        disp('Operations related to the next segment of the script (2) not yet implemented.');
+    end
+
+    function processUpcomingSegment(obj)
+        % Placeholder for operations related to the upcoming segment of the script
+        % TODO: Implement the specific logic based on the upcoming segment of the script
+        disp('Operations related to the upcoming segment of the script not yet implemented.');
+    end
+
+    function processSubsequentSegment2(obj)
+        % Placeholder for operations related to the subsequent segment of the script
+        % TODO: Implement the specific logic based on the subsequent segment of the script
+        disp('Operations related to the subsequent segment of the script (2) not yet implemented.');
+    end
+
+    function processFollowingSegment(obj)
+        % Placeholder for operations related to the following segment of the script
+        % TODO: Implement the specific logic based on the following segment of the script
+        disp('Operations related to the following segment of the script not yet implemented.');
+    end
+
+    function processNextSegment3(obj)
+        % Placeholder for operations related to the next segment of the script
+        % TODO: Implement the specific logic based on the next segment of the script
+        disp('Operations related to the next segment of the script (3) not yet implemented.');
+    end
+
+    function processSubsequentSegment3(obj)
+        % Placeholder for operations related to the subsequent segment of the script
+        % TODO: Implement the specific logic based on the subsequent segment of the script
+        disp('Operations related to the subsequent segment of the script (3) not yet implemented.');
+    end
+
+    function processNextSegment4(obj)
+        % Placeholder for operations related to the next segment of the script
+        % TODO: Implement the specific logic based on the next segment of the script
+        disp('Operations related to the next segment of the script (4) not yet implemented.');
+    end
+
+    function processSubsequentSegment4(obj)
+        % Placeholder for operations related to the subsequent segment of the script
+        % TODO: Implement the specific logic based on the subsequent segment of the script
+        disp('Operations related to the subsequent segment of the script (4) not yet implemented.');
+    end
+
+    function processFollowingSegment2(obj)
+        % Placeholder for operations related to the following segment of the script
+        % TODO: Implement the specific logic based on the following segment of the script
+        disp('Operations related to the following segment of the script (2) not yet implemented.');
+    end
+
+    function processSubsequentSegment5(obj)
+        % Placeholder for operations related to the subsequent segment of the script
+        % TODO: Implement the specific logic based on the subsequent segment of the script
+        disp('Operations related to the subsequent segment of the script (5) not yet implemented.');
+    end
+end

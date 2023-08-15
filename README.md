@@ -2,31 +2,28 @@
 
 This repository includes code and algorithm originally developed by Audrey Lyu for orthogonalization of word lists. It generates the distance matrices, correlational data, and parameters of each word from the final list(s) of worths that are minimally correlated. The current version allows input from a single or multiple lists. Our team has adapted and enhanced this original code for better performance and scalability.
 
-## Overview
+ Library
 
-**NTR_Orthogonalization_v15_multilistinput.m**
+This library provides functionalities related to the NTR Orthogonalization process.
 
-This script takes as input a final word list (wordinput_1.csv) or multiple lists (i.e. wordlist.csv) and generates:
+## Directory Structure
 
-- Distance matrices values as a structure array (allDistanceMatrices_x.mat)
-  - Each matrix is a field in the allMatrices structure array
-- Final word list parameters (allWordParameters_x.mat)
-- Correlation data (finalist_lists_Orthogonal_Corrs_iterations_12.csv)
-- Word index of final list (finalist_lists_Orthogonal_WordIndex_iterations_12.csv)
-
-**NTR_Orthogonalization_DistanceMatrices.m**
-
-This script uses the structure array saved of distance matrix values to generate figures from the matrices generated in NTR_Orthogonalization_v15 and save them into Excel.
-
-To run this script:
-1. Load wordlistfinal.mat and allDistanceMatrices_1.mat (in the same folder)
-2. Or run NTR_Orthogonalization_v15_multilistinput.m
-
-**DistanceMatrices.m**
-
-This script should be used when generating many figures and saving to Excel. It is suggested to integrate it into the multilistinput algorithm.
+- `README.md`: This file.
+- `distanceMatFigures.m`: A script related to visualizing distance matrices (needs further integration into the library).
+- `+OrthogonalizationLib`: The main library directory containing core functions and classes.
+- `data`: Directory containing necessary data files.
+- `results`: Directory containing result or output files.
+- `archive`: Directory containing older versions or variations of scripts.
 
 ## Usage
+
+To use the library, add the `+OrthogonalizationLib` directory to your MATLAB path and call the necessary functions or classes.
+
+## Further Development
+
+- Integrate the functionality of `distanceMatFigures.m` into the main library or utilize it as a utility script.
+- Continuously update the library based on new requirements or functionalities.
+
 
 ### MATLAB
 To generate figures and edit on MATLAB individually (change letterTri to matrix of interest):

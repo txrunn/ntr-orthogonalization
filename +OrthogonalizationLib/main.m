@@ -1,23 +1,28 @@
-% Utilizing the OrthogonilizationLib
-% ... any setup needed ...
-wordListInputFile = 'wordinput_1.csv'; % or other source of word list
+
+% Utilizing the OrthogonalizationLib
+% TODO: Add any setup or initializations needed
+
+% Specify the source of word list
+wordListInputFile = 'wordinput_1.csv';
 
 % Create NTR_Orthogonalization object
 ortho = NTR_Orthogonalization(wordListInputFile);
 
-% perform filtering
+% Perform data filtering
 ortho.filterData();
 
-% perform orthogonalization
-[allMatrices, allWordParameters] = OrthogonalizationLib.NTR_Orthogonalization.performOrthogonalization(ortho.parameters);
+% TODO: Implement and call the orthogonalization method for the NTR_Orthogonalization object
 
-% generate correlation data
-correlationData = OrthogonalizationLib.generateCorrelationData.performGeneration(allMatrices);
+% Generate correlation data
+% TODO: Update the function name and arguments if needed
+correlationData = OrthogonalizationLib.generateCorrelationData.performGeneration();
 
-% generate word index
-wordIndex = OrthogonalizationLib.generateWordIndex.performGeneration(ortho.parameters);
+% Generate word index
+% TODO: Update the function name and arguments if needed
+wordIndex = OrthogonalizationLib.generateWordIndex.performGeneration();
 
-% visualize and save distance matrices
-OrthogonalizationLib.visualizeDistanceMatrix.visualizeAndSave(allMatrices, ortho.parameters.string);
+% Visualize and save distance matrices
+% TODO: Update the function name and arguments if needed
+OrthogonalizationLib.visualizeDistanceMatrix.visualizeAndSave();
 
-% ... any cleanup ...
+% TODO: Add any cleanup or final steps needed
