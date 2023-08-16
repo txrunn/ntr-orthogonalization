@@ -1,18 +1,21 @@
+# TODO
 
-#### Project Goals:
+## Project Goals
+
 1. Create a library to help fMRI block-based studies construct word lists for their experiments ensuring minimal correlation between words.
 2. Ensure the library provides methods to adjust the word list's length while maintaining minimal correlation.
 3. Allow ease of use for scientists with minimal coding experience.
 4. Provide the capability for the library to be used for other related projects.
 
-#### Tasks:
+### Tasks
+
 1. **Refactor Redundancies**: Eliminate duplicate methods and code fragments.
 2. **Complete Placeholder Methods**: Fill in placeholder methods like `matchInputsToParameters` with proper implementations or detailed instructions.
 3. **Enhanced Documentation**: Update method comments to provide clarity on each function's purpose, inputs, and outputs.
 4. **User Guide**: Develop a comprehensive user guide that explains how to use the library, including examples.
 5. **Customization**: Ensure methods provide flexibility for users to incorporate their datasets and customize parameters.
 
-## Getting Started with `ntr-orthogonalization` Repository:
+## Getting Started with `ntr-orthogonalization` Repository
 
 1. **Clone the Repository**:
    - Open a terminal or command prompt.
