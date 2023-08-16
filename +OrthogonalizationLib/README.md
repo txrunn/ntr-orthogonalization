@@ -1,12 +1,20 @@
 
-# Orthogonalization Library
+# OrthogonalizationLib
 
-This library contains the core functionalities for the NTR Orthogonalization process. The methods within this library perform a series of operations on wordlists to generate distance matrices, visualize them, and run orthogonalization procedures.
+This library provides functionalities for the NTR Orthogonalization process. It's designed to be modular and extensible, allowing for easy updates and modifications.
 
-## Classes and Their Descriptions
+## Structure
 
-- `NTR_Orthogonalization`: This is the primary class that orchestrates the orthogonalization process. It calls various methods to handle different segments of the process.
-- `generateWordIndex`: Handles the extraction and generation of word indices from the provided datasets.
-- `generateDistanceMatrices`: Manages the creation of distance matrices based on word correlations.
-- `generateCorrelationData`: Extracts correlation data from the datasets.
-- `visualizeDistanceMatrix`: Provides visualization utilities to generate and save heatmaps of distance matrices.
+- `NTR_Orthogonalization.m`: This is the main class that encapsulates the core logic of the NTR Orthogonalization process.
+- `generateCorrelationData.m`: Contains functions related to generating correlation data from the word lists.
+- `generateDistanceMatrices.m`: Handles the creation of distance matrices.
+- `generateWordIndex.m`: Produces the word index of the final list.
+- `visualizeDistanceMatrix.m`: Contains functions for visualizing distance matrices.
+
+## How to Use
+
+To use the library, add the `+OrthogonalizationLib` directory to your MATLAB path. You can then create an instance of the main class (`NTR_Orthogonalization`) and call its methods as required.
+
+## Documentation
+
+Each class and function within the library is documented with comments to provide context and explanations on their purpose and usage.

@@ -16,7 +16,3 @@ function formatTables(obj)
     ORTable = readtable('data/ntr_masterlist_onset_rimes.xlsx');
 
 end
-
-end
-
-end
