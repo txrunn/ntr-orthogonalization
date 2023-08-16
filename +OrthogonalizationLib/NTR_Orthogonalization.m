@@ -35,7 +35,7 @@
 wordinput = 'data/wordinput_1.csv';
 
 % Name of the output MAT file where results will be saved
-wordoutput = 'wordoutput_1.mat';
+wordoutput = 'results/wordoutput_1.mat';
 
 % Ensure the library is in the path
 addpath('+OrthogonalizationLib');
@@ -59,8 +59,3 @@ distanceMatrices = OrthogonalizationLib.generateDistanceMatrices(correlationData
 
 % Save the results to the output MAT file
 save(wordoutput, 'words', 'wordIndex', 'correlationData', 'distanceMatrices');
-
-% Note: The above process is a simplified representation. In a real-world scenario, 
-% each step might involve further preprocessing, validation, and post-processing. 
-% Users are encouraged to delve into each function and modify as per their study's needs.
-
