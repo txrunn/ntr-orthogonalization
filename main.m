@@ -2,7 +2,7 @@
 % TODO: Add any setup or initializations needed
 
 % Specify the source of word list
-wordListInputFile = 'wordinput_1.csv';
+wordListInputFile = '/data/wordinput_1.csv';
 
 % Create NTR_Orthogonalization object
 ortho = NTR_Orthogonalization(wordListInputFile);

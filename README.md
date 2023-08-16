@@ -1,49 +1,18 @@
-# NTR Orthogonalization
 
-This repository includes code and algorithm originally developed by Audrey Lyu for orthogonalization of word lists. It generates the distance matrices, correlational data, and parameters of each word from the final list(s) of worths that are minimally correlated. The current version allows input from a single or multiple lists. Our team has adapted and enhanced this original code for better performance and scalability.
+#### NTR Orthogonalization Library:
+This library aids fMRI block-based studies in crafting word lists for their experiments. It focuses on ensuring that the constructed word lists have minimal correlation between words. The primary aim is to offer flexibility in determining the word list's length while preserving minimal inter-word correlation.
 
- Library
+##### Key Features:
+- **Dynamic Word List Construction**: Adjust the length of your word list based on your study's requirements.
+- **Minimal Correlation**: Uses advanced algorithms to ensure that the words in the list have minimal correlation with each other.
+- **Easy to Use**: Designed with scientists in mind, especially those with minimal coding experience.
+- **Extensible**: Suitable for use in other related projects and adaptable for various datasets.
 
-This library provides functionalities related to the NTR Orthogonalization process.
+##### Getting Started:
+1. Load your dataset or use the provided sample data.
+2. Use the provided methods to filter, manipulate, and generate word lists.
+3. Customize parameters as needed to suit your study's specific requirements.
+4. Use the visualization tools to assess the quality of the generated word lists.
 
-## Directory Structure
-
-- `README.md`: This file.
-- `distanceMatFigures.m`: A script related to visualizing distance matrices (needs further integration into the library).
-- `+OrthogonalizationLib`: The main library directory containing core functions and classes.
-- `data`: Directory containing necessary data files.
-- `results`: Directory containing result or output files.
-- `archive`: Directory containing older versions or variations of scripts.
-
-## Usage
-
-To use the library, add the `+OrthogonalizationLib` directory to your MATLAB path and call the necessary functions or classes.
-
-## Further Development
-
-- Integrate the functionality of `distanceMatFigures.m` into the main library or utilize it as a utility script.
-- Continuously update the library based on new requirements or functionalities.
-
-
-### MATLAB
-To generate figures and edit on MATLAB individually (change letterTri to matrix of interest):
-
-```MATLAB
-letterTriTrans = transpose(letterTri);
-heatmap(letterTriTrans, 'Colormap', parula)
-set(gca,'XData',wordlist, 'YData', wordlist)
-```
-
-### Figure Editing
-To edit the figure:
-1. Click “Property Inspector” on top of Figure menu in MATLAB ![image](https://github.com/txrunn/ntr-orthogonalization/assets/31973391/53ba9a67-9d1b-42f0-b568-b31bd46978b5)
-
-2. Edit font, title, colors, etc. here
-3. On this figure menu, you can also zoom into specific regions and export it as a separate file
-
-## Goal
-The overall goal is to combine these two algorithms and make it so that NTR_Orthogonalization_v15_multilistinput.m can output a file of all the visualized distance matrix color figures, and ensure that algorithms run with any list of words.
-
-## Credits
-The original code and algorithm were developed by Audrey Lyu. This enhanced version was adapted by our team.
-
+##### Customization:
+The library is designed for flexibility. If you have your datasets or specific criteria, the library provides methods for customization. Detailed instructions on how to achieve this are available in the user guide.
