@@ -1,116 +1,58 @@
+# NTR Orthogonalization
 
-# OrthogonalizationLib
+This repository includes code and algorithm originally developed by Audrey Lyu for orthogonalization of word lists. It generates the distance matrices, correlational data, and parameters of each word from the final list(s) of worths that are minimally correlated. The current version allows input from a single or multiple lists. Our team has adapted and enhanced this original code for better performance and scalability.
 
-`OrthogonalizationLib` is a MATLAB library designed to create orthogonalized matrices comparing phoneme units, Graph (The Levenshetein distance across grapheme units)eme units, phoneme + Graph (The Levenshetein distance across grapheme units)eme (GP) units, Letter (The Levenshetein distance across letters) edit distance (Levenshtein), and Sem (The Levenshetein distance across semantic glove variables) distance. This library provides a structured, object-oriented approach to the orthogonalization process, encapsulating the functionality originally found in the `NTR_Orthogonalization_v15_multilistinput.m` script.
+ Library
 
-## Components:
+This library provides functionalities related to the NTR Orthogonalization process.
 
-### 1. NTR_Orthogonalization Class:
+## Directory Structure
 
-#### Properties:
-- **numOfWords**: Number of words.
-- **numOfIterations**: Number of iterations.
-- **increment**: Increment value.
-- **output_path**: Path for outputs.
-- **parameters**: Parameters for the orthogonalization process.
-- **jpglove**, **ORTable**, **scope**, **ELP**, **biphone**: Tables loaded from various data sources.
+- `README.md`: This file.
+- `distanceMatFigures.m`: A script related to visualizing distance matrices (needs further integration into the library).
+- `+OrthogonalizationLib`: The main library directory containing core functions and classes.
+- `data`: Directory containing necessary data files.
+- `results`: Directory containing result or output files.
+- `archive`: Directory containing older versions or variations of scripts.
 
-#### Methods:
-- **Constructor (`NTR_Orthogonalization`)**: Initializes the class, loads word lists, and sets up data.
-- **filterData**: Performs data filtering operations by calling various filtering methods.
-- **filterHomoGraph (The Levenshetein distance across grapheme units)s**: Filters out homoGraph (The Levenshetein distance across grapheme units)s from the parameters table.
+## Usage
 
-(Note: The class contains several other methods that handle different filtering and processing steps.)
+To use the library, add the `+OrthogonalizationLib` directory to your MATLAB path and call the necessary functions or classes.
 
-### 2. Helper Functions:
-- **visualizeDistanceMatrix**: Provides visual representations of distance matrices.
-- **generateDistanceMatrices**: Produces distance matrices.
-- **generateCorrelationData**: Produces correlation data.
-- **generateWordIndex**: Produces the word index of the final list.
+## Further Development
 
-## Workflow:
-
-1. **Setup**: Specify the word list input file.
-2. **Data Loading**: Load word lists and other necessary data.
-3. **Data Filtering**: Filter out homoGraph (The Levenshetein distance across grapheme units)s, words based on length, and other criteria.
-4. **Orthogonalization**: Execute the orthogonalization process.
-5. **Data Generation**: Produce correlation data and word indices.
-6. **Visualization**: Create and save visual representations of distance matrices.
-
-## Usage:
-
-Run the `main.m` script to execute the workflow using the functions and methods provided in the `OrthogonalizationLib`.
-
----
-
-This README provides a basic overview of the `OrthogonalizationLib`. For detailed usage and further information, refer to the comments within each function and method.
+- Integrate the functionality of `distanceMatFigures.m` into the main library or utilize it as a utility script.
+- Continuously update the library based on new requirements or functionalities.
 
 
-### filterHomographs method
-This method filters out homographs from the parameters. The number of filtered words is displayed.
+### MATLAB
+To generate figures and edit on MATLAB individually (change letterTri to matrix of interest):
 
-### filterWordLength method
-This method filters out words based on length criteria. The number of filtered words is displayed.
+```MATLAB
+letterTriTrans = transpose(letterTri);
+heatmap(letterTriTrans, 'Colormap', parula)
+set(gca,'XData',wordlist, 'YData', wordlist)
+```
 
-### filterGLOVEParameters method (Placeholder)
-This method is intended for filtering words based on GLOVE parameters. The specific logic is yet to be implemented.
+### Figure Editing
+To edit the figure:
+1. Click “Property Inspector” on top of Figure menu in MATLAB ![image](https://github.com/txrunn/ntr-orthogonalization/assets/31973391/53ba9a67-9d1b-42f0-b568-b31bd46978b5)
 
-### filterELPData method (Placeholder)
-This method is intended for filtering and operations based on ELP data. The specific logic is yet to be implemented.
+2. Edit font, title, colors, etc. here
+3. On this figure menu, you can also zoom into specific regions and export it as a separate file
 
-### filterScopeData method (Placeholder)
-This method is intended for filtering and operations based on scope data. The specific logic is yet to be implemented.
+## Goal
+The overall goal is to combine these two algorithms and make it so that NTR_Orthogonalization_v15_multilistinput.m can output a file of all the visualized distance matrix color figures, and ensure that algorithms run with any list of words.
 
-### filterBiphoneProbabilityData method (Placeholder)
-This method is intended for filtering and operations based on biphone probability data. The specific logic is yet to be implemented.
+## Credits
+The original code and algorithm were developed by Audrey Lyu. This enhanced version was adapted by our team.
 
-### manipulateStrings method
-This method is intended for string manipulations such as trimming and replacing characters. The specific manipulations are to be implemented based on context.
 
-### matchInputsToParameters method (Placeholder)
-This method is intended for matching other inputs to parameters. The specific logic is yet to be implemented.
 
-### formatTables method (Placeholder)
-This method is intended for formatting tables related to gp, bigp, and onset-rimes. The specific logic is yet to be implemented.
+### Updates on formatTables(obj) Method
+The `formatTables(obj)` method in `NTR_Orthogonalization.m` has been updated to include logic for reading various datasets into tables:
+1. Reading a masterlist into a table named `parameters` from `ntr_masterlist_gp.xlsx`.
+2. Reading data into a table named `jpglove` from `jpglove.csv`.
+3. Reading onset-rime input into a table named `ORTable` from `ntr_masterlist_onset_rimes.xlsx`.
 
-### runIterations method (Placeholder)
-This method is intended for running iterations and computations. The specific logic is yet to be implemented.
-
-### processNextSegment method (Placeholder)
-This method is intended for operations related to the next segment of the script. The specific logic is yet to be implemented.
-
-### processFurtherSegment method (Placeholder)
-This method is intended for operations related to the further segment of the script. The specific logic is yet to be implemented.
-
-### processSubsequentSegment method (Placeholder)
-This method is intended for operations related to the subsequent segment of the script. The specific logic is yet to be implemented.
-
-### processNextSegment2 method (Placeholder)
-This method is intended for operations related to the next segment of the script (2). The specific logic is yet to be implemented.
-
-### processUpcomingSegment method (Placeholder)
-This method is intended for operations related to the upcoming segment of the script. The specific logic is yet to be implemented.
-
-### processSubsequentSegment2 method (Placeholder)
-This method is intended for operations related to the subsequent segment of the script (2). The specific logic is yet to be implemented.
-
-### processFollowingSegment method (Placeholder)
-This method is intended for operations related to the following segment of the script. The specific logic is yet to be implemented.
-
-### processNextSegment3 method (Placeholder)
-This method is intended for operations related to the next segment of the script (3). The specific logic is yet to be implemented.
-
-### processSubsequentSegment3 method (Placeholder)
-This method is intended for operations related to the subsequent segment of the script (3). The specific logic is yet to be implemented.
-
-### processNextSegment4 method (Placeholder)
-This method is intended for operations related to the next segment of the script (4). The specific logic is yet to be implemented.
-
-### processSubsequentSegment4 method (Placeholder)
-This method is intended for operations related to the subsequent segment of the script (4). The specific logic is yet to be implemented.
-
-### processFollowingSegment2 method (Placeholder)
-This method is intended for operations related to the following segment of the script (2). The specific logic is yet to be implemented.
-
-### processSubsequentSegment5 method (Placeholder)
-This method is intended for operations related to the subsequent segment of the script (5). The specific logic is yet to be implemented.
+This method ensures the datasets are read into tables and are available for further processing within the library.
