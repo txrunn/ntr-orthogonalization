@@ -31,6 +31,7 @@
 
 % --- INPUT SETUP ---
 
+function NTR_Orthogonalization
 % Path to the input CSV file containing words for the study
 wordinput = 'data/wordinput_1.csv';
 

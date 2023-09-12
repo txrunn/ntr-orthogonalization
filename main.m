@@ -1,6 +1,6 @@
 % Utilizing the OrthogonalizationLib
 % TODO: Add any setup or initializations needed
-
+addpath('./+OrthogonalizationLib/');
 % Specify the source of word list
 wordListInputFile = '/data/wordinput_1.csv';
 
