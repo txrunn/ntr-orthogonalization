@@ -1,9 +1,11 @@
 % Ensure the root folder of this directory is added to the MATLAB path.
+% For this script, the workspace must ALSO be cleared prior to running.
+clear()
 
 %function NTR_Orthogonalization_v13_wordinput(output_code) % censor if running as SCRIPT
 % example for FUNCTION: NTR_Orthogonalization_v11('test')
 %% Creates orthogonalized matrix comparing phoneme units, grapheme units,
-% phoneme + grapheme (GP) units, letter edit distance (Levenstein), and semantic distance
+% phoneme + grapheme (GP) units, letter edit distance (Levenstein), and Sem distance
 %% Set Parameters
 output_code = 'finalist_lists'; % uncommment for SCRIPT
 %numOfIterations = 10000;
@@ -197,7 +199,7 @@ it = 0;
 tally = 0;
 
 for a = 1:numOfIterations
-    fprintf("iteration %d\n", a); % printing a start for visual cue; fprintf writes data to text file; %d start\n,a prints row for each n of iteration followed by "start"
+    fprintf("iteration %d of %d\n", a, numOfIterations); % printing a start for visual cue; fprintf writes data to text file; %d start\n,a prints row for each n of iteration followed by "start"
 
     for s = 1:numOfWords
         r(1, s) = find(strcmp(wordlistinput{a, s}, string(parameters.string)) == 1); % JP sitched a and s variables
@@ -280,24 +282,24 @@ for a = 1:numOfIterations
 
     % Setting up the results table
     letterTri = zeros(numOfWords);
-    semanticTri = zeros(numOfWords);
+    SemTri = zeros(numOfWords);
     gpTri = zeros(numOfWords);
     % bigpTri = array2table(zeros(numOfWords));
     ORTri = zeros(numOfWords);
     phonemeTri = zeros(numOfWords);
     graphemeTri = zeros(numOfWords);
-    Freq_SUBTLEXUS = zeros(numOfWords);
-    OLD20sum = zeros(numOfWords);
-    PLD20sum = zeros(numOfWords);
-    Phonographic_N = zeros(numOfWords);
-    Sem_N_D = zeros(numOfWords);
-    BigramF_Avg_C_Log = zeros(numOfWords);
+    WordFreq = zeros(numOfWords);
+    OrthoNeigh = zeros(numOfWords);
+    PhonoNeigh = zeros(numOfWords);
+    PhonoGraphNeigh = zeros(numOfWords);
+    SemNeighDen = zeros(numOfWords);
+    BigramFreq = zeros(numOfWords);
     GPfreq = zeros(numOfWords);
-    Biphon_Prob = zeros(numOfWords);
-    Length = zeros(numOfWords);
+    BiphonProb = zeros(numOfWords);
+    NLetters = zeros(numOfWords);
     NSyll = zeros(numOfWords);
-    GPprob = zeros(numOfWords);
-    ORprob = zeros(numOfWords);
+    GPProb = zeros(numOfWords);
+    ORProb = zeros(numOfWords);
     Gfreq = zeros(numOfWords);
     Pfreq = zeros(numOfWords);
 
@@ -306,6 +308,7 @@ for a = 1:numOfIterations
 
     %finding the word pairings and their distances
     for t = 1:size(wp_tally, 1)
+        fprintf("Number of runs: %d of %d\n", t, size(wp_tally, 1))
         % for j = 1:numOfWords
         %  for k = 1:numOfWords
         word1 = wordlist(wp_tally(t, 1), 1); % grabs word 1 from wordlist
@@ -320,9 +323,9 @@ for a = 1:numOfIterations
         end
 
         % ORTHOGRAPHIC EDIT DISTANCE
-        wLength(1) = strlength(word1);
-        wLength(2) = strlength(word2);
-        letterTri(wp_tally(t, 1), wp_tally(t, 2)) = editDistance(word1, word2, 'SwapCost', 1) / max(wLength);
+        wNLetters(1) = strlength(word1);
+        wNLetters(2) = strlength(word2);
+        letterTri(wp_tally(t, 1), wp_tally(t, 2)) = editDistance(word1, word2, 'SwapCost', 1) / max(wNLetters);
 
         % GP EDIT DISTANCE - make function
         index1 = find(strcmp(word1, string(parameters.string)) == 1); %finding where word1 is in the unique word list
@@ -342,12 +345,12 @@ for a = 1:numOfIterations
             % string1gp = strtrim(string1gp); % removes leading and trailing white space from strings
             % string2gp = strtrim(string2gp);
 
-            gpLength(1) = size(tokenDetails(word1GP), 1);
-            gpLength(2) = size(tokenDetails(word2GP), 1);
+            gpNLetters(1) = size(tokenDetails(word1GP), 1);
+            gpNLetters(2) = size(tokenDetails(word2GP), 1);
 
-            % wordLength(1) = count(string1gp,' ') + 1;
-            % wordLength(2) = count(string2gp,' ') + 1;
-            gpEditDistance = gpDistance(1, 1) / max(gpLength);
+            % wordNLetters(1) = count(string1gp,' ') + 1;
+            % wordNLetters(2) = count(string2gp,' ') + 1;
+            gpEditDistance = gpDistance(1, 1) / max(gpNLetters);
 
             gpTri(wp_tally(t, 1), wp_tally(t, 2)) = gpEditDistance;
         end
@@ -373,9 +376,9 @@ for a = 1:numOfIterations
 
             % string1OR = strtrim(string1OR); % removes leading and trailing white space from strings
             % string2OR = strtrim(string2OR);
-            ORLength(1) = size(tokenDetails(string1ORtok), 1);
-            ORLength(2) = size(tokenDetails(string2ORtok), 1);
-            OREditDistance = ORDistance(1, 1) / max(ORLength);
+            ORNLetters(1) = size(tokenDetails(string1ORtok), 1);
+            ORNLetters(2) = size(tokenDetails(string2ORtok), 1);
+            OREditDistance = ORDistance(1, 1) / max(ORNLetters);
 
             ORTri(wp_tally(t, 1), wp_tally(t, 2)) = OREditDistance;
         end
@@ -383,8 +386,8 @@ for a = 1:numOfIterations
         % SEMANTIC EDIT DISTANCE - change to use file, not variables from workspace
         word1Vars = jpglove(r(1, wp_tally(t, 1)), 2:301); % grabs all glove variables for word 1
         word2Vars = jpglove(r(1, wp_tally(t, 2)), 2:301); % grabs all glove variables for word 2
-        semanticCorr = corrcoef(table2array(word1Vars), table2array(word2Vars)); %grabs correlation coefficient
-        semanticTri(wp_tally(t, 1), wp_tally(t, 2)) = 1 - semanticCorr(1, 2); % records correlation
+        SemCorr = corrcoef(table2array(word1Vars), table2array(word2Vars)); %grabs correlation coefficient
+        SemTri(wp_tally(t, 1), wp_tally(t, 2)) = 1 - SemCorr(1, 2); % records correlation
 
         % PHONEME UNIT AND GRAPHEME UNIT EDIT DISTANCE (separated, not P+G)
         if isempty(index1) == 0 && isempty(index2) == 0 %check if string was found
@@ -421,16 +424,16 @@ for a = 1:numOfIterations
             graphemeWord2 = tokenizedDocument(graphemeWord2);
 
             % calculates edit distances for phonemes and graphemes
-            phonemeLength(1) = size(tokenDetails(phonemeWord1), 1);
-            phonemeLength(2) = size(tokenDetails(phonemeWord2), 1);
+            phonemeNLetters(1) = size(tokenDetails(phonemeWord1), 1);
+            phonemeNLetters(2) = size(tokenDetails(phonemeWord2), 1);
 
-            graphemeLength(1) = size(tokenDetails(graphemeWord1), 1);
-            graphemeLength(2) = size(tokenDetails(graphemeWord2), 1);
+            graphemeNLetters(1) = size(tokenDetails(graphemeWord1), 1);
+            graphemeNLetters(2) = size(tokenDetails(graphemeWord2), 1);
 
             pEditDistance = editDistance(phonemeWord1, phonemeWord2, 'SwapCost', 1);
             gEditDistance = editDistance(graphemeWord1, graphemeWord2, 'SwapCost', 1);
-            phonemeEditDistance = pEditDistance(1, 1) / max(phonemeLength);
-            graphemeEditDistance = gEditDistance(1, 1) / max(graphemeLength);
+            phonemeEditDistance = pEditDistance(1, 1) / max(phonemeNLetters);
+            graphemeEditDistance = gEditDistance(1, 1) / max(graphemeNLetters);
 
             phonemeTri(wp_tally(t, 1), wp_tally(t, 2)) = phonemeEditDistance; % records phonemes and graphemes edit distances
             graphemeTri(wp_tally(t, 1), wp_tally(t, 2)) = graphemeEditDistance;
@@ -440,21 +443,21 @@ for a = 1:numOfIterations
         index1 = find(strcmp(word1, string(scope.Word)) == 1); %finding where word1 is in the unique word list
         index2 = find(strcmp(word2, string(scope.Word)) == 1);
 
-        Freq_SUBTLEXUS(wp_tally(t, 1), wp_tally(t, 2)) = scope.Freq_SUBTLEXUS(index1) + scope.Freq_SUBTLEXUS(index2);
-        OLD20sum(wp_tally(t, 1), wp_tally(t, 2)) = scope.OLD20(index1) + scope.OLD20(index2);
-        %PLD20sum(wp_tally(t,1),wp_tally(t,2)) = scope.PLD20(index1) + scope.PLD20(index2);
-        Phonographic_N(wp_tally(t, 1), wp_tally(t, 2)) = scope.Phonographic_N(index1) + scope.Phonographic_N(index2);
-        Sem_N_D(wp_tally(t, 1), wp_tally(t, 2)) = scope.Sem_N_D(index1) + scope.Sem_N_D(index2);
-        BigramF_Avg_C_Log(wp_tally(t, 1), wp_tally(t, 2)) = scope.BigramF_Avg_C_Log(index1) + scope.BigramF_Avg_C_Log(index2);
-        Biphon_Prob(wp_tally(t, 1), wp_tally(t, 2)) = biphone.BiphonProb(index1) + biphone.BiphonProb(index2);
+        WordFreq(wp_tally(t, 1), wp_tally(t, 2)) = scope.Freq_SUBTLEXUS(index1) + scope.Freq_SUBTLEXUS(index2);
+        OrthoNeigh(wp_tally(t, 1), wp_tally(t, 2)) = scope.OLD20(index1) + scope.OLD20(index2);
+        %PhonoNeigh(wp_tally(t,1),wp_tally(t,2)) = scope.PLD20(index1) + scope.PLD20(index2);
+        PhonoGraphNeigh(wp_tally(t, 1), wp_tally(t, 2)) = scope.Phonographic_N(index1) + scope.Phonographic_N(index2);
+        SemNeighDen(wp_tally(t, 1), wp_tally(t, 2)) = scope.Sem_N_D(index1) + scope.Sem_N_D(index2);
+        BigramFreq(wp_tally(t, 1), wp_tally(t, 2)) = scope.BigramF_Avg_C_Log(index1) + scope.BigramF_Avg_C_Log(index2);
+        BiphonProb(wp_tally(t, 1), wp_tally(t, 2)) = biphone.BiphonProb(index1) + biphone.BiphonProb(index2);
 
-        %GPprob(wp_tally(t,1),wp_tally(t,2)) = parameters.GP_mean(index1) + parameters.GP_mean(index2);
-        % ORprob(wp_tally(t,1),wp_tally(t,2)) = parameters.ORGP_mean(index1) + parameters.ORGP_mean(index2);
+        %GPProb(wp_tally(t,1),wp_tally(t,2)) = parameters.GP_mean(index1) + parameters.GP_mean(index2);
+        % ORProb(wp_tally(t,1),wp_tally(t,2)) = parameters.ORGP_mean(index1) + parameters.ORGP_mean(index2);
         % Gfreq(wp_tally(t,1),wp_tally(t,2)) = parameters.G_freq_mean(index1) + parameters.G_freq_mean(index2);
         %Pfreq(wp_tally(t,1),wp_tally(t,2)) = parameters.P_freq_mean(index1) + parameters.P_freq_mean(index2);
 
-        GPprob(wp_tally(t, 1), wp_tally(t, 2)) = parameters.GPprob_Min(index1) + parameters.GPprob_Min(index2);
-        ORprob(wp_tally(t, 1), wp_tally(t, 2)) = parameters.ORprob_Min(index1) + parameters.ORprob_Min(index2);
+        GPProb(wp_tally(t, 1), wp_tally(t, 2)) = parameters.GPprob_Min(index1) + parameters.GPprob_Min(index2);
+        ORProb(wp_tally(t, 1), wp_tally(t, 2)) = parameters.ORprob_Min(index1) + parameters.ORprob_Min(index2);
         Gfreq(wp_tally(t, 1), wp_tally(t, 2)) = parameters.Gfreq_Mean(index1) + parameters.Gfreq_Mean(index2);
         Pfreq(wp_tally(t, 1), wp_tally(t, 2)) = parameters.Pfreq_Mean(index1) + parameters.Pfreq_Mean(index2);
         GPfreq(wp_tally(t, 1), wp_tally(t, 2)) = parameters.GPfreq_Min(index1) + parameters.GPfreq_Min(index2);
@@ -463,197 +466,197 @@ for a = 1:numOfIterations
         index1 = find(strcmp(word1, string(ELP.Word)) == 1); %finding where word1 is in the unique word list
         index2 = find(strcmp(word2, string(ELP.Word)) == 1);
 
-        Length(wp_tally(t, 1), wp_tally(t, 2)) = ELP.Length(index1) - ELP.Length(index2);
+        NLetters(wp_tally(t, 1), wp_tally(t, 2)) = ELP.Length(index1) - ELP.Length(index2);
         NSyll(wp_tally(t, 1), wp_tally(t, 2)) = ELP.NSyll(index1) - ELP.NSyll(index2);
     end
 
     %fprintf("%d after triangle\n", a);
 
     % Spearman correlation comparing GP edit distance to phonological and orthographic
-    GPprobToPhono(a, 1) = corr(phonemeTri(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToletter(a, 1) = corr(letterTri(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToSem(a, 1) = corr(semanticTri(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToGraph(a, 1) = corr(graphemeTri(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToFreq_SUBTLEXUS(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToOLD20sum(a, 1) = corr(OLD20sum(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToGPfreq(a, 1) = corr(GPfreq(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToPhonographic_N(a, 1) = corr(Phonographic_N(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToSem_N_D(a, 1) = corr(Sem_N_D(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToBigramF_Avg_C_Log(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToLength(a, 1) = corr(Length(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToNSyll(a, 1) = corr(NSyll(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToBiphon_Prob(a, 1) = corr(Biphon_Prob(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToOR(a, 1) = corr(ORTri(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobTogp(a, 1) = corr(gpTri(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToORprob(a, 1) = corr(ORprob(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToGfreq(a, 1) = corr (Gfreq(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
-    GPprobToPfreq(a, 1) = corr (Pfreq(tri_mask), GPprob(tri_mask), 'Type', 'Spearman');
+    GPProbToPhono(a, 1) = corr(phonemeTri(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToletter(a, 1) = corr(letterTri(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToSem(a, 1) = corr(SemTri(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToGraph(a, 1) = corr(graphemeTri(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToWordFreq(a, 1) = corr(WordFreq(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToOrthoNeigh(a, 1) = corr(OrthoNeigh(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToGPfreq(a, 1) = corr(GPfreq(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToPhonoGraphNeigh(a, 1) = corr(PhonoGraphNeigh(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToSemNeighDen(a, 1) = corr(SemNeighDen(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToBigramFreq(a, 1) = corr(BigramFreq(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToNLetters(a, 1) = corr(NLetters(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToNSyll(a, 1) = corr(NSyll(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToBiphonProb(a, 1) = corr(BiphonProb(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToOR(a, 1) = corr(ORTri(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbTogp(a, 1) = corr(gpTri(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToORProb(a, 1) = corr(ORProb(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToGfreq(a, 1) = corr (Gfreq(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
+    GPProbToPfreq(a, 1) = corr (Pfreq(tri_mask), GPProb(tri_mask), 'Type', 'Spearman');
 
-    ORprobToPhono(a, 1) = corr(phonemeTri(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToletter(a, 1) = corr(letterTri(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToSem(a, 1) = corr(semanticTri(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToGraph(a, 1) = corr(graphemeTri(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToFreq_SUBTLEXUS(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToOLD20sum(a, 1) = corr(OLD20sum(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToGPfreq(a, 1) = corr(GPfreq(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToPhonographic_N(a, 1) = corr(Phonographic_N(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToSem_N_D(a, 1) = corr(Sem_N_D(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToBigramF_Avg_C_Log(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToLength(a, 1) = corr(Length(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToNSyll(a, 1) = corr(NSyll(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToBiphon_Prob(a, 1) = corr(Biphon_Prob(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToOR(a, 1) = corr(ORTri(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobTogp(a, 1) = corr(gpTri(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToGfreq(a, 1) = corr(Gfreq(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
-    ORprobToPfreq(a, 1) = corr(Pfreq(tri_mask), ORprob(tri_mask), 'Type', 'Spearman');
+    ORProbToPhono(a, 1) = corr(phonemeTri(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToletter(a, 1) = corr(letterTri(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToSem(a, 1) = corr(SemTri(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToGraph(a, 1) = corr(graphemeTri(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToWordFreq(a, 1) = corr(WordFreq(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToOrthoNeigh(a, 1) = corr(OrthoNeigh(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToGPfreq(a, 1) = corr(GPfreq(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToPhonoGraphNeigh(a, 1) = corr(PhonoGraphNeigh(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToSemNeighDen(a, 1) = corr(SemNeighDen(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToBigramFreq(a, 1) = corr(BigramFreq(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToNLetters(a, 1) = corr(NLetters(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToNSyll(a, 1) = corr(NSyll(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToBiphonProb(a, 1) = corr(BiphonProb(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToOR(a, 1) = corr(ORTri(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbTogp(a, 1) = corr(gpTri(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToGfreq(a, 1) = corr(Gfreq(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
+    ORProbToPfreq(a, 1) = corr(Pfreq(tri_mask), ORProb(tri_mask), 'Type', 'Spearman');
 
     gpToPhono(a, 1) = corr(phonemeTri(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
     gpToletter(a, 1) = corr(letterTri(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
-    gpToSem(a, 1) = corr(semanticTri(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
+    gpToSem(a, 1) = corr(SemTri(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
     gpToGraph(a, 1) = corr(graphemeTri(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
-    gpToFreq_SUBTLEXUS(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
-    gpToOLD20sum(a, 1) = corr(OLD20sum(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
+    gpToWordFreq(a, 1) = corr(WordFreq(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
+    gpToOrthoNeigh(a, 1) = corr(OrthoNeigh(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
     gpToGPfreq(a, 1) = corr(GPfreq(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
-    gpToPhonographic_N(a, 1) = corr(Phonographic_N(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
-    gpToSem_N_D(a, 1) = corr(Sem_N_D(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
-    gpToBigramF_Avg_C_Log(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
-    gpToLength(a, 1) = corr(Length(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
+    gpToPhonoGraphNeigh(a, 1) = corr(PhonoGraphNeigh(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
+    gpToSemNeighDen(a, 1) = corr(SemNeighDen(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
+    gpToBigramFreq(a, 1) = corr(BigramFreq(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
+    gpToNLetters(a, 1) = corr(NLetters(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
     gpToNSyll(a, 1) = corr(NSyll(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
-    gpToBiphon_Prob(a, 1) = corr(Biphon_Prob(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
+    gpToBiphonProb(a, 1) = corr(BiphonProb(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
     gpToOR(a, 1) = corr(ORTri(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
     gpToGfreq(a, 1) = corr(Gfreq(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
     gpToPfreq(a, 1) = corr(Pfreq(tri_mask), gpTri(tri_mask), 'Type', 'Spearman');
 
     ORToPhono(a, 1) = corr(phonemeTri(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
     ORToletter(a, 1) = corr(letterTri(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
-    ORToSem(a, 1) = corr(semanticTri(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
+    ORToSem(a, 1) = corr(SemTri(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
     ORToGraph(a, 1) = corr(graphemeTri(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
-    ORToFreq_SUBTLEXUS(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
-    ORToOLD20sum(a, 1) = corr(OLD20sum(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
+    ORToWordFreq(a, 1) = corr(WordFreq(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
+    ORToOrthoNeigh(a, 1) = corr(OrthoNeigh(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
     ORToGPfreq(a, 1) = corr(GPfreq(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
-    ORToPhonographic_N(a, 1) = corr(Phonographic_N(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
-    ORToSem_N_D(a, 1) = corr(Sem_N_D(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
-    ORToBigramF_Avg_C_Log(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
-    ORToLength(a, 1) = corr(Length(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
+    ORToPhonoGraphNeigh(a, 1) = corr(PhonoGraphNeigh(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
+    ORToSemNeighDen(a, 1) = corr(SemNeighDen(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
+    ORToBigramFreq(a, 1) = corr(BigramFreq(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
+    ORToNLetters(a, 1) = corr(NLetters(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
     ORToNSyll(a, 1) = corr(NSyll(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
-    ORToBiphon_Prob(a, 1) = corr(Biphon_Prob(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
+    ORToBiphonProb(a, 1) = corr(BiphonProb(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
     ORToGfreq(a, 1) = corr(Gfreq(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
     ORToPfreq(a, 1) = corr(Pfreq(tri_mask), ORTri(tri_mask), 'Type', 'Spearman');
 
-    Freq_SUBTLEXUSToPhono(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToLetter(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToSem(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToGraph(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToOLD20sum(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), OLD20sum(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToGPfreq(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), GPfreq(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToPhonographic_N(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), Phonographic_N(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToSem_N_D(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), Sem_N_D(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToBigramF_Avg_C_Log(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), BigramF_Avg_C_Log(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToLength(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), Length(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToNSyll(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToBiphon_Prob(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToGfreq(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
-    Freq_SUBTLEXUSToPfreq(a, 1) = corr(Freq_SUBTLEXUS(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
+    WordFreqToPhono(a, 1) = corr(WordFreq(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
+    WordFreqToLetter(a, 1) = corr(WordFreq(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
+    WordFreqToSem(a, 1) = corr(WordFreq(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
+    WordFreqToGraph(a, 1) = corr(WordFreq(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
+    WordFreqToOrthoNeigh(a, 1) = corr(WordFreq(tri_mask), OrthoNeigh(tri_mask), 'Type', 'Spearman');
+    WordFreqToGPfreq(a, 1) = corr(WordFreq(tri_mask), GPfreq(tri_mask), 'Type', 'Spearman');
+    WordFreqToPhonoGraphNeigh(a, 1) = corr(WordFreq(tri_mask), PhonoGraphNeigh(tri_mask), 'Type', 'Spearman');
+    WordFreqToSemNeighDen(a, 1) = corr(WordFreq(tri_mask), SemNeighDen(tri_mask), 'Type', 'Spearman');
+    WordFreqToBigramFreq(a, 1) = corr(WordFreq(tri_mask), BigramFreq(tri_mask), 'Type', 'Spearman');
+    WordFreqToNLetters(a, 1) = corr(WordFreq(tri_mask), NLetters(tri_mask), 'Type', 'Spearman');
+    WordFreqToNSyll(a, 1) = corr(WordFreq(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
+    WordFreqToBiphonProb(a, 1) = corr(WordFreq(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    WordFreqToGfreq(a, 1) = corr(WordFreq(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
+    WordFreqToPfreq(a, 1) = corr(WordFreq(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
-    OLD20sumToGPfreq(a, 1) = corr(OLD20sum(tri_mask), GPfreq(tri_mask), 'Type', 'Spearman');
-    OLD20sumToPhonographic_N(a, 1) = corr(OLD20sum(tri_mask), Phonographic_N(tri_mask), 'Type', 'Spearman');
-    OLD20sumToSem_N_D(a, 1) = corr(OLD20sum(tri_mask), Sem_N_D(tri_mask), 'Type', 'Spearman');
-    OLD20sumToBigramF_Avg_C_Log(a, 1) = corr(OLD20sum(tri_mask), BigramF_Avg_C_Log(tri_mask), 'Type', 'Spearman');
-    OLD20sumToLength(a, 1) = corr(OLD20sum(tri_mask), Length(tri_mask), 'Type', 'Spearman');
-    OLD20sumToNSyll(a, 1) = corr(OLD20sum(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
-    OLD20sumToBiphon_Prob(a, 1) = corr(OLD20sum(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    OLD20sumToPhono(a, 1) = corr(OLD20sum(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
-    OLD20sumToLetter(a, 1) = corr(OLD20sum(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
-    OLD20sumToGraph(a, 1) = corr(OLD20sum(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
-    OLD20sumToSem(a, 1) = corr(OLD20sum(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
-    OLD20sumToGfreq(a, 1) = corr(OLD20sum(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
-    OLD20sumToPfreq(a, 1) = corr(OLD20sum(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToGPfreq(a, 1) = corr(OrthoNeigh(tri_mask), GPfreq(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToPhonoGraphNeigh(a, 1) = corr(OrthoNeigh(tri_mask), PhonoGraphNeigh(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToSemNeighDen(a, 1) = corr(OrthoNeigh(tri_mask), SemNeighDen(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToBigramFreq(a, 1) = corr(OrthoNeigh(tri_mask), BigramFreq(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToNLetters(a, 1) = corr(OrthoNeigh(tri_mask), NLetters(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToNSyll(a, 1) = corr(OrthoNeigh(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToBiphonProb(a, 1) = corr(OrthoNeigh(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToPhono(a, 1) = corr(OrthoNeigh(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToLetter(a, 1) = corr(OrthoNeigh(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToGraph(a, 1) = corr(OrthoNeigh(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToSem(a, 1) = corr(OrthoNeigh(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToGfreq(a, 1) = corr(OrthoNeigh(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
+    OrthoNeighToPfreq(a, 1) = corr(OrthoNeigh(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
-    GPfreqToPhonographic_N(a, 1) = corr(GPfreq(tri_mask), Phonographic_N(tri_mask), 'Type', 'Spearman');
-    GPfreqToSem_N_D(a, 1) = corr(GPfreq(tri_mask), Sem_N_D(tri_mask), 'Type', 'Spearman');
-    GPfreqToBigramF_Avg_C_Log(a, 1) = corr(GPfreq(tri_mask), BigramF_Avg_C_Log(tri_mask), 'Type', 'Spearman');
-    GPfreqToLength(a, 1) = corr(GPfreq(tri_mask), Length(tri_mask), 'Type', 'Spearman');
+    GPfreqToPhonoGraphNeigh(a, 1) = corr(GPfreq(tri_mask), PhonoGraphNeigh(tri_mask), 'Type', 'Spearman');
+    GPfreqToSemNeighDen(a, 1) = corr(GPfreq(tri_mask), SemNeighDen(tri_mask), 'Type', 'Spearman');
+    GPfreqToBigramFreq(a, 1) = corr(GPfreq(tri_mask), BigramFreq(tri_mask), 'Type', 'Spearman');
+    GPfreqToNLetters(a, 1) = corr(GPfreq(tri_mask), NLetters(tri_mask), 'Type', 'Spearman');
     GPfreqToNSyll(a, 1) = corr(GPfreq(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
-    GPfreqToBiphon_Prob(a, 1) = corr(GPfreq(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    GPfreqToSem(a, 1) = corr(GPfreq(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
+    GPfreqToBiphonProb(a, 1) = corr(GPfreq(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    GPfreqToSem(a, 1) = corr(GPfreq(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
     GPfreqToPhono(a, 1) = corr(GPfreq(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
     GPfreqToLetter(a, 1) = corr(GPfreq(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
     GPfreqToGraph(a, 1) = corr(GPfreq(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
     GPfreqToGfreq(a, 1) = corr(GPfreq(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
     GPfreqToPfreq(a, 1) = corr(GPfreq(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
-    Phonographic_NToSem_N_D(a, 1) = corr(Phonographic_N(tri_mask), Sem_N_D(tri_mask), 'Type', 'Spearman');
-    Phonographic_NToBigramF_Avg_C_Log(a, 1) = corr(Phonographic_N(tri_mask), BigramF_Avg_C_Log(tri_mask), 'Type', 'Spearman');
-    Phonographic_NToLength(a, 1) = corr(Phonographic_N(tri_mask), Length(tri_mask), 'Type', 'Spearman');
-    Phonographic_NToNSyll(a, 1) = corr(Phonographic_N(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
-    Phonographic_NToBiphon_Prob(a, 1) = corr(Phonographic_N(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    Phonographic_ToSem(a, 1) = corr(Phonographic_N(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
-    Phonographic_NToPhono(a, 1) = corr(Phonographic_N(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
-    Phonographic_NToLetter(a, 1) = corr(Phonographic_N(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
-    Phonographic_NTo_Graph(a, 1) = corr(Phonographic_N(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
-    Phonographic_NToGfreq(a, 1) = corr(Phonographic_N(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
-    Phonographic_NToPfreq(a, 1) = corr(Phonographic_N(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
+    PhonoGraphNeighToSemNeighDen(a, 1) = corr(PhonoGraphNeigh(tri_mask), SemNeighDen(tri_mask), 'Type', 'Spearman');
+    PhonoGraphNeighToBigramFreq(a, 1) = corr(PhonoGraphNeigh(tri_mask), BigramFreq(tri_mask), 'Type', 'Spearman');
+    PhonoGraphNeighToNLetters(a, 1) = corr(PhonoGraphNeigh(tri_mask), NLetters(tri_mask), 'Type', 'Spearman');
+    PhonoGraphNeighToNSyll(a, 1) = corr(PhonoGraphNeigh(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
+    PhonoGraphNeighToBiphonProb(a, 1) = corr(PhonoGraphNeigh(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    Phonographic_ToSem(a, 1) = corr(PhonoGraphNeigh(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
+    PhonoGraphNeighToPhono(a, 1) = corr(PhonoGraphNeigh(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
+    PhonoGraphNeighToLetter(a, 1) = corr(PhonoGraphNeigh(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
+    PhonoGraphNeighTo_Graph(a, 1) = corr(PhonoGraphNeigh(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
+    PhonoGraphNeighToGfreq(a, 1) = corr(PhonoGraphNeigh(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
+    PhonoGraphNeighToPfreq(a, 1) = corr(PhonoGraphNeigh(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
-    Sem_N_DToBigramF_Avg_C_Log(a, 1) = corr(Sem_N_D(tri_mask), BigramF_Avg_C_Log(tri_mask), 'Type', 'Spearman');
-    Sem_N_DToLength(a, 1) = corr(Sem_N_D(tri_mask), Length(tri_mask), 'Type', 'Spearman');
-    Sem_N_DToNSyll(a, 1) = corr(Sem_N_D(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
-    Sem_N_DToBiphon_Prob(a, 1) = corr(Sem_N_D(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    Sem_N_DToSem(a, 1) = corr(Sem_N_D(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
-    Sem_N_DToPhono(a, 1) = corr(Sem_N_D(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
-    Sem_N_DToLetter(a, 1) = corr(Sem_N_D(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
-    Sem_N_DToGraph(a, 1) = corr(Sem_N_D(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
-    Sem_N_DToGfreq(a, 1) = corr(Sem_N_D(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
-    Sem_N_DToPfreq(a, 1) = corr(Sem_N_D(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
+    SemNeighDenToBigramFreq(a, 1) = corr(SemNeighDen(tri_mask), BigramFreq(tri_mask), 'Type', 'Spearman');
+    SemNeighDenToNLetters(a, 1) = corr(SemNeighDen(tri_mask), NLetters(tri_mask), 'Type', 'Spearman');
+    SemNeighDenToNSyll(a, 1) = corr(SemNeighDen(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
+    SemNeighDenToBiphonProb(a, 1) = corr(SemNeighDen(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    SemNeighDenToSem(a, 1) = corr(SemNeighDen(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
+    SemNeighDenToPhono(a, 1) = corr(SemNeighDen(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
+    SemNeighDenToLetter(a, 1) = corr(SemNeighDen(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
+    SemNeighDenToGraph(a, 1) = corr(SemNeighDen(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
+    SemNeighDenToGfreq(a, 1) = corr(SemNeighDen(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
+    SemNeighDenToPfreq(a, 1) = corr(SemNeighDen(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
-    BigramF_Avg_C_LogToLength(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), Length(tri_mask), 'Type', 'Spearman');
-    BigramF_Avg_C_LogToNSyll(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
-    BigramF_Avg_C_LogToBiphon_Prob(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    BigramF_Avg_C_LogToSem(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
-    BigramF_Avg_C_LogToPhono(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
-    BigramF_Avg_C_LogToLetter(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
-    BigramF_Avg_C_LogToGraph(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
-    BigramF_Avg_C_LogToGfreq(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
-    BigramF_Avg_C_LogToPfreq(a, 1) = corr(BigramF_Avg_C_Log(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
+    BigramFreqToNLetters(a, 1) = corr(BigramFreq(tri_mask), NLetters(tri_mask), 'Type', 'Spearman');
+    BigramFreqToNSyll(a, 1) = corr(BigramFreq(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
+    BigramFreqToBiphonProb(a, 1) = corr(BigramFreq(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    BigramFreqToSem(a, 1) = corr(BigramFreq(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
+    BigramFreqToPhono(a, 1) = corr(BigramFreq(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
+    BigramFreqToLetter(a, 1) = corr(BigramFreq(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
+    BigramFreqToGraph(a, 1) = corr(BigramFreq(tri_mask), graphemeTri(tri_mask), 'Type', 'Spearman');
+    BigramFreqToGfreq(a, 1) = corr(BigramFreq(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
+    BigramFreqToPfreq(a, 1) = corr(BigramFreq(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
     graphToletter(a, 1) = corr(graphemeTri(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
     graphToPhono(a, 1) = corr(graphemeTri(tri_mask), phonemeTri(tri_mask), 'Type', 'Spearman');
-    graphToLength(a, 1) = corr(graphemeTri(tri_mask), Length(tri_mask), 'Type', 'Spearman');
+    graphToNLetters(a, 1) = corr(graphemeTri(tri_mask), NLetters(tri_mask), 'Type', 'Spearman');
     graphToNSyll(a, 1) = corr(graphemeTri(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
-    graphToBiphon_Prob(a, 1) = corr(graphemeTri(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    graphToSem(a, 1) = corr(graphemeTri(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
+    graphToBiphonProb(a, 1) = corr(graphemeTri(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    graphToSem(a, 1) = corr(graphemeTri(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
     graphToGfreq(a, 1) = corr(graphemeTri(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
     graphToPfreq(a, 1) = corr(graphemeTri(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
     phonoToletter(a, 1) = corr(phonemeTri(tri_mask), letterTri(tri_mask), 'Type', 'Spearman');
-    phonoToLength(a, 1) = corr(phonemeTri(tri_mask), Length(tri_mask), 'Type', 'Spearman');
+    phonoToNLetters(a, 1) = corr(phonemeTri(tri_mask), NLetters(tri_mask), 'Type', 'Spearman');
     phonoToNSyll(a, 1) = corr(phonemeTri(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
-    phonoToBiphon_Prob(a, 1) = corr(phonemeTri(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    phonoToSem(a, 1) = corr(phonemeTri(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
+    phonoToBiphonProb(a, 1) = corr(phonemeTri(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    phonoToSem(a, 1) = corr(phonemeTri(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
     phonoToGfreq(a, 1) = corr(phonemeTri(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
     phonoToPfreq(a, 1) = corr(phonemeTri(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
-    LetterToLength(a, 1) = corr(letterTri(tri_mask), Length(tri_mask), 'Type', 'Spearman');
+    LetterToNLetters(a, 1) = corr(letterTri(tri_mask), NLetters(tri_mask), 'Type', 'Spearman');
     LetterToNSyll(a, 1) = corr(letterTri(tri_mask), NSyll(tri_mask), 'Type', 'Spearman');
-    LetterToBiphon_Prob(a, 1) = corr(letterTri(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    LetterToSem(a, 1) = corr(letterTri(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
+    LetterToBiphonProb(a, 1) = corr(letterTri(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    LetterToSem(a, 1) = corr(letterTri(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
     LetterToGfreq(a, 1) = corr(letterTri(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
     LetterToPfreq(a, 1) = corr(letterTri(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
-    LengthToBiphon_Prob(a, 1) = corr(Length(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    LengthToSem(a, 1) = corr(Length(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
-    LengthToGfreq(a, 1) = corr(Length(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
-    LengthToPfreq(a, 1) = corr(Length(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
+    NLettersToBiphonProb(a, 1) = corr(NLetters(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    NLettersToSem(a, 1) = corr(NLetters(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
+    NLettersToGfreq(a, 1) = corr(NLetters(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
+    NLettersToPfreq(a, 1) = corr(NLetters(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
-    NSyllToBiphon_Prob(a, 1) = corr(NSyll(tri_mask), Biphon_Prob(tri_mask), 'Type', 'Spearman');
-    NSyllToSem(a, 1) = corr(NSyll(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
+    NSyllToBiphonProb(a, 1) = corr(NSyll(tri_mask), BiphonProb(tri_mask), 'Type', 'Spearman');
+    NSyllToSem(a, 1) = corr(NSyll(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
     NSyllToGfreq(a, 1) = corr(NSyll(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
     NSyllToPfreq(a, 1) = corr(NSyll(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
-    Biphon_ProbToSem_Corr(a, 1) = corr(Biphon_Prob(tri_mask), semanticTri(tri_mask), 'Type', 'Spearman');
-    Biphon_ProbToGfreq(a, 1) = corr(Biphon_Prob(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
-    Biphon_ProbToPfreq(a, 1) = corr(Biphon_Prob(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
+    BiphonProbToSem_Corr(a, 1) = corr(BiphonProb(tri_mask), SemTri(tri_mask), 'Type', 'Spearman');
+    BiphonProbToGfreq(a, 1) = corr(BiphonProb(tri_mask), Gfreq(tri_mask), 'Type', 'Spearman');
+    BiphonProbToPfreq(a, 1) = corr(BiphonProb(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
-    NSyllToLen(a, 1) = corr(NSyll(tri_mask), Length(tri_mask), 'Type', 'Spearman');
+    NSyllToLen(a, 1) = corr(NSyll(tri_mask), NLetters(tri_mask), 'Type', 'Spearman');
 
     GfreqToPfreq(a, 1) = corr (Gfreq(tri_mask), Pfreq(tri_mask), 'Type', 'Spearman');
 
@@ -662,48 +665,48 @@ for a = 1:numOfIterations
     std_phonemeTri(a, 1) = std(phonemeTri(tri_mask), w, "all");
     std_gpTri(a, 1) = std(gpTri(tri_mask), w, "all");
     std_letterTri(a, 1) = std(letterTri(tri_mask), w, "all");
-    std_semanticTri(a, 1) = std(semanticTri(tri_mask), w, "all");
+    std_SemTri(a, 1) = std(SemTri(tri_mask), w, "all");
     std_graphemeTri(a, 1) = std(graphemeTri(tri_mask), w, "all");
     std_ORTri(a, 1) = std(ORTri(tri_mask), w, "all");
-    std_Freq_SUBTLEXUS(a, 1) = std(Freq_SUBTLEXUS(tri_mask), w, "all");
-    std_OLD20sum(a, 1) = std(OLD20sum(tri_mask), w, "all");
+    std_WordFreq(a, 1) = std(WordFreq(tri_mask), w, "all");
+    std_OrthoNeigh(a, 1) = std(OrthoNeigh(tri_mask), w, "all");
     std_GPfreq(a, 1) = std(GPfreq(tri_mask), w, "all");
-    std_Phonographic_N(a, 1) = std(Phonographic_N(tri_mask), w, "all");
-    std_Sem_N_D(a, 1) = std(Sem_N_D(tri_mask), w, "all");
-    std_BigramF_Avg_C_Log(a, 1) = std(BigramF_Avg_C_Log(tri_mask), w, "all");
-    std_Length(a, 1) = std(Length(tri_mask), w, "all");
+    std_PhonoGraphNeigh(a, 1) = std(PhonoGraphNeigh(tri_mask), w, "all");
+    std_SemNeighDen(a, 1) = std(SemNeighDen(tri_mask), w, "all");
+    std_BigramFreq(a, 1) = std(BigramFreq(tri_mask), w, "all");
+    std_NLetters(a, 1) = std(NLetters(tri_mask), w, "all");
     std_NSyll(a, 1) = std(NSyll(tri_mask), w, "all");
-    std_Biphon_Prob(a, 1) = std(Biphon_Prob(tri_mask), w, "all");
+    std_BiphonProb(a, 1) = std(BiphonProb(tri_mask), w, "all");
     std_Gfreq(a, 1) = std(Gfreq(tri_mask), w, "all");
     std_Pfreq(a, 1) = std(Pfreq(tri_mask), w, "all");
 
     % Saves distance matrices into singular structure array and .mat file
     letterTri = fliplr(letterTri);
-    semanticTri = fliplr(semanticTri);
+    SemTri = fliplr(SemTri);
     gpTri = fliplr(gpTri);
     ORTri = fliplr(ORTri);
     phonemeTri = fliplr(phonemeTri);
     graphemeTri = fliplr(graphemeTri);
-    Freq_SUBTLEXUS = fliplr(Freq_SUBTLEXUS);
-    OLD20sum = fliplr(OLD20sum);
-    PLD20sum = fliplr(PLD20sum);
-    Phonographic_N = fliplr(Phonographic_N);
-    Sem_N_D = fliplr(Sem_N_D);
-    BigramF_Avg_C_Log = fliplr(BigramF_Avg_C_Log);
+    WordFreq = fliplr(WordFreq);
+    OrthoNeigh = fliplr(OrthoNeigh);
+    PhonoNeigh = fliplr(PhonoNeigh);
+    PhonoGraphNeigh = fliplr(PhonoGraphNeigh);
+    SemNeighDen = fliplr(SemNeighDen);
+    BigramFreq = fliplr(BigramFreq);
     GPfreq = fliplr(GPfreq);
-    Biphon_Prob = fliplr(Biphon_Prob);
-    Length = fliplr(Length);
+    BiphonProb = fliplr(BiphonProb);
+    NLetters = fliplr(NLetters);
     NSyll = fliplr(NSyll);
-    GPprob = fliplr(GPprob);
-    ORprob = fliplr(ORprob);
+    GPProb = fliplr(GPProb);
+    ORProb = fliplr(ORProb);
     Gfreq = fliplr(Gfreq);
     Pfreq = fliplr(Pfreq);
 
-    allMatrices = struct('letterTri', letterTri, 'semanticTri', semanticTri, 'gpTri', gpTri, ...
-        'ORTri', ORTri, 'phonemeTri', phonemeTri, 'graphemeTri', graphemeTri, 'Freq_SUBTLEXUS', Freq_SUBTLEXUS, ...
-        'OLD20sum', OLD20sum, 'PLD20sum', PLD20sum, 'Phonographic_N', Phonographic_N, ...
-        'Sem_N_D', Sem_N_D, 'BigramF_Avg_C_Log', BigramF_Avg_C_Log, 'GPfreq', GPfreq, 'Biphon_Prob', Biphon_Prob, ...
-        'Length', Length, 'NSyll', NSyll, 'GPprob', GPprob, 'ORprob', ORprob, 'Gfreq', Gfreq, 'Pfreq', Pfreq);
+    allMatrices = struct('letterTri', letterTri, 'SemTri', SemTri, 'gpTri', gpTri, ...
+        'ORTri', ORTri, 'phonemeTri', phonemeTri, 'graphemeTri', graphemeTri, 'WordFreq', WordFreq, ...
+        'OrthoNeigh', OrthoNeigh, 'PhonoNeigh', PhonoNeigh, 'PhonoGraphNeigh', PhonoGraphNeigh, ...
+        'SemNeighDen', SemNeighDen, 'BigramFreq', BigramFreq, 'GPfreq', GPfreq, 'BiphonProb', BiphonProb, ...
+        'NLetters', NLetters, 'NSyll', NSyll, 'GPProb', GPProb, 'ORProb', ORProb, 'Gfreq', Gfreq, 'Pfreq', Pfreq);
 
     disMatName = strcat('allDistanceMatrices_', num2str(a), '.mat');
     save(disMatName, 'allMatrices')
@@ -719,27 +722,27 @@ for a = 1:numOfIterations
         % set up table based on variables
 
         finalResults = table(iteration, nouncount, verbcount, adjcount, advcount, multcount, othercount, onemorphcount, twomorphcount, threemorphcount, fourmorphcount, othermorphcount, ...
-            onesyllcount, twosyllcount, threesyllcount, foursyllcount, fivesyllcount, sixsyllcount, othersyllcount, NSyllToLen, gpToPhono, gpToletter, gpToSem, gpToGraph, gpToFreq_SUBTLEXUS, ...
-            gpToOLD20sum, gpToGPfreq, gpToPhonographic_N, gpToLength, gpToNSyll, gpToOR, ORToPhono, ORToletter, ORToSem, ORToGraph, ORToFreq_SUBTLEXUS, ORToLength, ORToNSyll, Freq_SUBTLEXUSToPhono, ...
-            Freq_SUBTLEXUSToLetter, Freq_SUBTLEXUSToSem, Freq_SUBTLEXUSToGraph, Freq_SUBTLEXUSToOLD20sum, Freq_SUBTLEXUSToGPfreq, Freq_SUBTLEXUSToPhonographic_N, ...
-            Freq_SUBTLEXUSToSem_N_D, Freq_SUBTLEXUSToBigramF_Avg_C_Log, Freq_SUBTLEXUSToLength, Freq_SUBTLEXUSToNSyll, ...
-            Freq_SUBTLEXUSToBiphon_Prob, Freq_SUBTLEXUSToGfreq, Freq_SUBTLEXUSToPfreq, OLD20sumToGPfreq, OLD20sumToPhonographic_N, OLD20sumToSem_N_D, OLD20sumToBigramF_Avg_C_Log, OLD20sumToLength, OLD20sumToNSyll, ...
-            OLD20sumToBiphon_Prob, OLD20sumToPhono, OLD20sumToLetter, OLD20sumToGraph, OLD20sumToSem, OLD20sumToGfreq, OLD20sumToPfreq, GPfreqToPhonographic_N, GPfreqToSem_N_D, ...
-            GPfreqToBigramF_Avg_C_Log, GPfreqToLength, GPfreqToNSyll, GPfreqToBiphon_Prob, GPfreqToSem, GPfreqToGfreq, GPfreqToPfreq, ...
-            Phonographic_NToSem_N_D, Phonographic_NToBigramF_Avg_C_Log, Phonographic_NToLength, Phonographic_NToNSyll, Phonographic_NToBiphon_Prob, ...
-            Phonographic_NToGfreq, Phonographic_NToPfreq, Sem_N_DToBigramF_Avg_C_Log, Sem_N_DToLength, Sem_N_DToNSyll, ...
-            Sem_N_DToBiphon_Prob, Sem_N_DToSem, Sem_N_DToPhono, Sem_N_DToLetter, Sem_N_DToGraph, Sem_N_DToGfreq, Sem_N_DToPfreq, BigramF_Avg_C_LogToLength, ...
-            BigramF_Avg_C_LogToNSyll, BigramF_Avg_C_LogToBiphon_Prob, BigramF_Avg_C_LogToSem, ...
-            BigramF_Avg_C_LogToGfreq, BigramF_Avg_C_LogToPfreq, graphToletter, graphToPhono, graphToLength, graphToNSyll, ...
-            graphToBiphon_Prob, graphToSem, graphToGfreq, graphToPfreq, phonoToletter, phonoToLength, phonoToNSyll, phonoToBiphon_Prob, phonoToSem, phonoToGfreq, phonoToPfreq, LetterToLength, ...
-            LetterToNSyll, LetterToSem, LengthToBiphon_Prob, LengthToSem, LengthToGfreq, LengthToPfreq, NSyllToBiphon_Prob, NSyllToGfreq, NSyllToPfreq, Biphon_ProbToGfreq, Biphon_ProbToPfreq, ...
-            GPprobToGraph, GPprobToFreq_SUBTLEXUS, GPprobToOLD20sum, GPprobToGPfreq, ...
-            GPprobToPhonographic_N, GPprobToSem_N_D, GPprobToBigramF_Avg_C_Log, GPprobToLength, GPprobToNSyll, GPprobToBiphon_Prob, ...
-            GPprobToOR, GPprobTogp, GPprobToORprob, GPprobToGfreq, GPprobToPfreq, ORprobToPhono, ORprobToletter, ORprobToFreq_SUBTLEXUS, ...
-            ORprobToOLD20sum, ORprobToGPfreq, ORprobToPhonographic_N, ORprobToSem_N_D, ORprobToBigramF_Avg_C_Log, ...
-            ORprobToLength, ORprobToNSyll, ORprobToBiphon_Prob, ORprobToOR, ORprobTogp, ORprobToGfreq, ORprobToPfreq, ...
-            std_phonemeTri, std_gpTri, std_letterTri, std_semanticTri, std_graphemeTri, std_ORTri, std_Freq_SUBTLEXUS, std_OLD20sum, ...
-            std_GPfreq, std_Phonographic_N, std_Sem_N_D, std_BigramF_Avg_C_Log, std_Length, std_NSyll, std_Biphon_Prob, std_Gfreq, std_Pfreq);
+            onesyllcount, twosyllcount, threesyllcount, foursyllcount, fivesyllcount, sixsyllcount, othersyllcount, NSyllToLen, gpToPhono, gpToletter, gpToSem, gpToGraph, gpToWordFreq, ...
+            gpToOrthoNeigh, gpToGPfreq, gpToPhonoGraphNeigh, gpToNLetters, gpToNSyll, gpToOR, ORToPhono, ORToletter, ORToSem, ORToGraph, ORToWordFreq, ORToNLetters, ORToNSyll, WordFreqToPhono, ...
+            WordFreqToLetter, WordFreqToSem, WordFreqToGraph, WordFreqToOrthoNeigh, WordFreqToGPfreq, WordFreqToPhonoGraphNeigh, ...
+            WordFreqToSemNeighDen, WordFreqToBigramFreq, WordFreqToNLetters, WordFreqToNSyll, ...
+            WordFreqToBiphonProb, WordFreqToGfreq, WordFreqToPfreq, OrthoNeighToGPfreq, OrthoNeighToPhonoGraphNeigh, OrthoNeighToSemNeighDen, OrthoNeighToBigramFreq, OrthoNeighToNLetters, OrthoNeighToNSyll, ...
+            OrthoNeighToBiphonProb, OrthoNeighToPhono, OrthoNeighToLetter, OrthoNeighToGraph, OrthoNeighToSem, OrthoNeighToGfreq, OrthoNeighToPfreq, GPfreqToPhonoGraphNeigh, GPfreqToSemNeighDen, ...
+            GPfreqToBigramFreq, GPfreqToNLetters, GPfreqToNSyll, GPfreqToBiphonProb, GPfreqToSem, GPfreqToGfreq, GPfreqToPfreq, ...
+            PhonoGraphNeighToSemNeighDen, PhonoGraphNeighToBigramFreq, PhonoGraphNeighToNLetters, PhonoGraphNeighToNSyll, PhonoGraphNeighToBiphonProb, ...
+            PhonoGraphNeighToGfreq, PhonoGraphNeighToPfreq, SemNeighDenToBigramFreq, SemNeighDenToNLetters, SemNeighDenToNSyll, ...
+            SemNeighDenToBiphonProb, SemNeighDenToSem, SemNeighDenToPhono, SemNeighDenToLetter, SemNeighDenToGraph, SemNeighDenToGfreq, SemNeighDenToPfreq, BigramFreqToNLetters, ...
+            BigramFreqToNSyll, BigramFreqToBiphonProb, BigramFreqToSem, ...
+            BigramFreqToGfreq, BigramFreqToPfreq, graphToletter, graphToPhono, graphToNLetters, graphToNSyll, ...
+            graphToBiphonProb, graphToSem, graphToGfreq, graphToPfreq, phonoToletter, phonoToNLetters, phonoToNSyll, phonoToBiphonProb, phonoToSem, phonoToGfreq, phonoToPfreq, LetterToNLetters, ...
+            LetterToNSyll, LetterToSem, NLettersToBiphonProb, NLettersToSem, NLettersToGfreq, NLettersToPfreq, NSyllToBiphonProb, NSyllToGfreq, NSyllToPfreq, BiphonProbToGfreq, BiphonProbToPfreq, ...
+            GPProbToGraph, GPProbToWordFreq, GPProbToOrthoNeigh, GPProbToGPfreq, ...
+            GPProbToPhonoGraphNeigh, GPProbToSemNeighDen, GPProbToBigramFreq, GPProbToNLetters, GPProbToNSyll, GPProbToBiphonProb, ...
+            GPProbToOR, GPProbTogp, GPProbToORProb, GPProbToGfreq, GPProbToPfreq, ORProbToPhono, ORProbToletter, ORProbToWordFreq, ...
+            ORProbToOrthoNeigh, ORProbToGPfreq, ORProbToPhonoGraphNeigh, ORProbToSemNeighDen, ORProbToBigramFreq, ...
+            ORProbToNLetters, ORProbToNSyll, ORProbToBiphonProb, ORProbToOR, ORProbTogp, ORProbToGfreq, ORProbToPfreq, ...
+            std_phonemeTri, std_gpTri, std_letterTri, std_SemTri, std_graphemeTri, std_ORTri, std_WordFreq, std_OrthoNeigh, ...
+            std_GPfreq, std_PhonoGraphNeigh, std_SemNeighDen, std_BigramFreq, std_NLetters, std_NSyll, std_BiphonProb, std_Gfreq, std_Pfreq);
 
         %         %% output for SCRIPT uncensor if running as SCRIPT
 
