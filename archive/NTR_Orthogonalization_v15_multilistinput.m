@@ -1,3 +1,5 @@
+% Ensure the root folder of this directory is added to the MATLAB path.
+
 %function NTR_Orthogonalization_v13_wordinput(output_code) % censor if running as SCRIPT
 % example for FUNCTION: NTR_Orthogonalization_v11('test')
 %% Creates orthogonalized matrix comparing phoneme units, grapheme units,
