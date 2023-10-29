@@ -13,13 +13,13 @@ output_path=pwd; % navigate to the program folder and uncenser this for running 
 %output_path=fileparts(mfilename('fullpath'));% censor if running as SCRIPT. Get output path from the m-file location.
 
 %% Read in info for SCRIPT (uncensor if running as script)
-parameters = readtable('ntr_masterlist_gp.xlsx'); % creates table from masterlist input (10701 words)
-jpglove=readtable('jpglove.csv'); %creates table from jpglove input (10701 words)
-ORTable = readtable("ntr_masterlist_onset_rimes.xlsx"); % creates table from onset-rime input (10701 words)
+parameters = readtable('data/ntr_masterlist_gp.xlsx'); % creates table from masterlist input (10701 words)
+jpglove=readtable('data/jpglove.csv'); %creates table from jpglove input (10701 words)
+ORTable = readtable("data/ntr_masterlist_onset_rimes.xlsx"); % creates table from onset-rime input (10701 words)
 ORTable = table2array(ORTable); %formats table from onset-rime input
-scope = readtable("ntr_masterlist_scope_upd.csv");
-ELP=readtable('ntr_masterlist_elp_with_values_upd.xlsx','Sheet','Values');% removed words repated with ed/s/ing morphemes
-biphone=readtable('iphod_wohoms_phonprob_edit.csv');
+scope = readtable("data/ntr_masterlist_scope_upd.csv");
+ELP=readtable('data/ntr_masterlist_elp_with_values_upd.xlsx','Sheet','Values');% removed words repated with ed/s/ing morphemes
+biphone=readtable('data/iphod_wohoms_phonprob_edit.csv');
 
 %% Read in info for function (censor if running as SCRIPT)
 % parameters = readtable(fullfile(output_path,'ntr_masterlist_gp.xlsx')); % creates table from masterlist input (10701 words)
@@ -236,6 +236,7 @@ for a=1:numOfIterations
 
     %finding the word pairings and their distances
     for t=1:size(wp_tally,1)
+        fprintf("Number of runs: %d of %d\n", t, size(wp_tally, 1))
         % for j = 1:numOfWords
         %  for k = 1:numOfWords
         word1 = wordlist(wp_tally(t,1), 1); % grabs word 1 from wordlist

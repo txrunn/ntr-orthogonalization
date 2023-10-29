@@ -5,7 +5,7 @@
 %% Set Parameters
 output_code = 'finalist_lists'; % uncommment for SCRIPT
 %numOfIterations = 10000;
-wordlistinput = readtable("wordinput_1.csv", 'ReadVariableNames', false);
+wordlistinput = readtable("data/wordinput_1.csv", 'ReadVariableNames', false);
 numOfWords = size(wordlistinput, 2);
 numOfIterations = size(wordlistinput, 1);
 increment = numOfIterations;
@@ -15,13 +15,13 @@ output_path = pwd; % navigate to the program folder and uncenser this for runnin
 %output_path=fileparts(mfilename('fullpath'));% censor if running as SCRIPT. Get output path from the m-file location.
 
 %% Read in info for SCRIPT (uncensor if running as script)
-parameters = readtable('ntr_masterlist_gp.xlsx'); % creates table from masterlist input (10701 words)
-jpglove = readtable('jpglove.csv'); %creates table from jpglove input (10701 words)
-ORTable = readtable("ntr_masterlist_onset_rimes.xlsx"); % creates table from onset-rime input (10701 words)
+parameters = readtable('data/ntr_masterlist_gp.xlsx'); % creates table from masterlist input (10701 words)
+jpglove = readtable('data/jpglove.csv'); %creates table from jpglove input (10701 words)
+ORTable = readtable("data/ntr_masterlist_onset_rimes.xlsx"); % creates table from onset-rime input (10701 words)
 ORTable = table2array(ORTable); %formats table from onset-rime input
-scope = readtable("ntr_masterlist_scope_upd.csv");
-ELP = readtable('ntr_masterlist_elp_with_values_upd.xlsx', 'Sheet', 'Values'); % removed words repated with ed/s/ing morphemes
-biphone = readtable('iphod_wohoms_phonprob_edit.csv');
+scope = readtable("data/ntr_masterlist_scope_upd.csv");
+ELP = readtable('data/ntr_masterlist_elp_with_values_upd.xlsx', 'Sheet', 'Values'); % removed words repated with ed/s/ing morphemes
+biphone = readtable('data/iphod_wohoms_phonprob_edit.csv');
 
 %% Read in info for function (censor if running as SCRIPT)
 % parameters = readtable(fullfile(output_path,'ntr_masterlist_gp.xlsx')); % creates table from masterlist input (10701 words)
